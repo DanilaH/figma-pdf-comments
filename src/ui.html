@@ -1,0 +1,13 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Review Pack Diagnostic</title>
+<style>body{font:13px/1.5 system-ui,sans-serif;color:#222;margin:0;padding:20px}h1{font-size:19px;margin:0 0 8px}label{display:block;margin-top:14px}input[type=url],input[type=password]{display:block;box-sizing:border-box;width:100%;padding:9px;margin-top:5px;border:1px solid #bbb;border-radius:5px}button{padding:9px 12px;border:1px solid #bbb;border-radius:5px;cursor:pointer;margin:12px 5px 0 0}button:disabled{opacity:.5;cursor:default}#build{color:white;background:#4938bc;border-color:#4938bc}.note{background:#fff4d9;padding:10px;border-radius:5px}.small{font-size:11px;color:#555}#status{white-space:pre-wrap;overflow-wrap:anywhere;margin-top:14px}input[type=checkbox]{vertical-align:middle}a{color:#4938bc}</style>
+<h1>Review Pack Diagnostic</h1><p>Select 1–12 top-level frames, then create a PDF with the current comment threads.</p>
+<p class="note">Comment images and GIF attachments are excluded. This is a text snapshot with current screen images, not a complete archive.</p>
+<label>Link to this open Figma Design file<input id="url" type="url" placeholder="https://www.figma.com/design/…" autocomplete="off"></label>
+<label>Personal access token (file_comments:read)<input id="token" type="password" autocomplete="off" spellcheck="false"></label>
+<p class="small">Token stays in memory until you close the plugin. It is sent only to api.figma.com. No backend, analytics or persistent token storage.</p>
+<label><input id="confirmed" type="checkbox"> I checked that this URL belongs to the currently open file. I accept that comment attachments are excluded.</label>
+<button id="build">Create diagnostic PDF</button><button id="cancel" disabled>Cancel</button><br>
+<button id="pdf" disabled>Download PDF</button><button id="json" disabled>Download diagnostics JSON</button>
+<p class="small">Diagnostics contains names, comment texts and coordinates; keep it private. The token is excluded. UTF-8 JSON also preserves characters not supported by the PDF font.</p>
+<div id="status" role="status" aria-live="polite">No export yet.</div>
+<script>/* UI_BUNDLE */</script></html>
