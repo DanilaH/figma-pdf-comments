@@ -75,6 +75,8 @@ node test/browser-smoke.cjs
 
 For an existing compatible binary: `CHROME_PATH=/absolute/path/to/chrome-headless-shell node test/browser-smoke.cjs`. The browser test runs its own local HTTP server in the same process. On this sandbox it used Chrome Headless Shell 151.0.7922.34, `--single-process --no-zygote`, and mock API routes. Seven scenarios passed: consent, successful counts, PDF download, token absent from JSON, cancel, denied access after cancelled capture, URL change invalidates confirmation. Zero page JS errors. This does not test Figma itself.
 
+After the first user run timed out awaiting a frame response, bridge handling was corrected to accept native messages without assuming `event.source === parent`, using random session/request IDs instead. The regression sends mock messages with `source:null`; eight browser scenarios now pass, including native progress updates. The updated UI reports each frame and distinguishes no native acknowledgment from a stalled render. See the dated validation addendum; a successful actual Figma PDF is still unconfirmed.
+
 `test-output/` is intentionally not committed: it is reproducible and may contain future private test data. Sanitized results are in `docs/VALIDATION.md`.
 
 ## Decision gate

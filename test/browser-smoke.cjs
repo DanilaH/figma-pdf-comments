@@ -4,7 +4,7 @@ const {chromium}=require('playwright');const http=require('node:http');const fs=
 (async()=>{
  const ui=await fs.readFile('dist/ui.html','utf8');
  const fixture=await fs.readFile('test/fixture.ts','utf8');const png=fixture.match(/atob\('([^']+)'\)/)[1];
- const host=`<!doctype html><iframe src="/ui" style="width:520px;height:620px;border:0"></iframe><script>let generation=0;window.addEventListener('message',e=>{const m=e.data.pluginMessage;if(m?.type==='snapshot'){const current=++generation;setTimeout(()=>e.source.postMessage({pluginMessage:{type:'snapshot',requestId:m.requestId,title:'MOCK HOST — NOT FIGMA',frames:[{id:'1:2',name:'Long screen',x:100,y:200,width:300,height:1800,png:Uint8Array.from(atob('${png}'),c=>c.charCodeAt(0))}]}},'*'),current===2?500:0)}});</script>`;
+ const host=`<!doctype html><iframe src="/ui" style="width:520px;height:620px;border:0"></iframe><script>let generation=0;window.addEventListener('message',e=>{const m=e.data.pluginMessage;if(m?.type==='snapshot'){const current=++generation;const send=pluginMessage=>document.querySelector('iframe').contentWindow.dispatchEvent(new MessageEvent('message',{data:{pluginMessage},source:null}));send({type:'progress',requestId:m.requestId,message:'Rendering frame 1/1: mock native export…'});setTimeout(()=>send({type:'snapshot',requestId:m.requestId,title:'MOCK HOST — NOT FIGMA',frames:[{id:'1:2',name:'Long screen',x:100,y:200,width:300,height:1800,png:Uint8Array.from(atob('${png}'),c=>c.charCodeAt(0))}]}),current===2?500:0)}});</script>`;
  const server=http.createServer((req,res)=>{res.setHeader('Content-Type','text/html');res.end(req.url==='/ui'?ui:host)});
  await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
  let browser;
@@ -19,17 +19,17 @@ const {chromium}=require('playwright');const http=require('node:http');const fs=
   await page.goto(`http://127.0.0.1:${server.address().port}`);const f=page.frameLocator('iframe');
   await f.locator('#build').click();await f.locator('#status').filter({hasText:'Confirm'}).waitFor();assert.equal(requests,0);
   await f.locator('#url').fill('https://www.figma.com/design/Ab123/Test');await f.locator('#token').fill('DUMMY_TOKEN_NEVER_REAL');await f.locator('#confirmed').check();
-  await f.locator('#build').click();await f.locator('#pdf').waitFor({state:'visible'});await page.waitForFunction(()=>document.querySelector('iframe').contentDocument.querySelector('#pdf').disabled===false);
+  await f.locator('#build').click();await f.locator('#pdf').waitFor({state:'visible'});try{await page.waitForFunction(()=>document.querySelector('iframe').contentDocument.querySelector('#pdf').disabled===false,{},{timeout:10000});}catch(e){console.error('UI status:',await f.locator('#status').innerText(),'Page errors:',errors);throw e;}
   assert.match(await f.locator('#status').innerText(),/Assigned: 1; unassigned: 1/);
   const jsonWait=page.waitForEvent('download');await f.locator('#json').click();const jd=await jsonWait;const json=await fs.readFile(await jd.path(),'utf8');assert.ok(!json.includes('DUMMY_TOKEN'));assert.equal(JSON.parse(json).comments.length,3);
   const pdfWait=page.waitForEvent('download');await f.locator('#pdf').click();const pd=await pdfWait;const bytes=await fs.readFile(await pd.path());assert.equal(bytes.subarray(0,4).toString(),'%PDF');
   await fs.mkdir('test-output',{recursive:true});await fs.writeFile('test-output/browser-report.pdf',bytes);await page.screenshot({path:'test-output/ui-ready.png'});
-  await f.locator('#build').click();await f.locator('#status').filter({hasText:'Exporting selected frames'}).waitFor();await f.locator('#cancel').click();await f.locator('#status').filter({hasText:'Cancelled'}).waitFor();assert.ok(await f.locator('#pdf').isDisabled());
+  await f.locator('#build').click();await f.locator('#status').filter({hasText:'Rendering frame 1/1'}).waitFor();await f.locator('#cancel').click();await f.locator('#status').filter({hasText:'Cancelled'}).waitFor();assert.ok(await f.locator('#pdf').isDisabled());
   // Start again before the cancelled mock snapshot arrives. Request IDs prevent
   // that old frame response from being used for the new export.
   denied=true;await f.locator('#build').click();await f.locator('#status').filter({hasText:'Figma denied access'}).waitFor();assert.ok(await f.locator('#pdf').isDisabled());
   await f.locator('#url').fill('https://www.figma.com/design/OtherFile');assert.equal(await f.locator('#confirmed').isChecked(),false);
-  assert.deepEqual(errors,[]);const result={host:'explicit mock; not Figma',requests,tests:['consent gate','success and counts','PDF download','token absent from diagnostics','cancel during raster capture','denied access after cancelled capture','URL change invalidates confirmation'],pageErrors:errors};
+  assert.deepEqual(errors,[]);const result={host:'explicit mock; not Figma; sandbox messages have source:null',requests,tests:['consent gate','success and counts via source:null bridge','PDF download','token absent from diagnostics','native progress updates','cancel during raster capture','denied access after cancelled capture','URL change invalidates confirmation'],pageErrors:errors};
   await fs.writeFile('test-output/browser-result.json',JSON.stringify(result,null,2));console.log(JSON.stringify(result));
  }finally{await browser?.close();await new Promise(resolve=>server.close(resolve));}
 })().catch(e=>{console.error(e);process.exitCode=1});

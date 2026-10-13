@@ -28,3 +28,15 @@
 ## Stop conditions
 
 Incorrect mapping, silent message loss or an unverified wrong-file association blocks release. A comparable configured free/manual result blocks product development. Even a technically correct prototype is not evidence that buyers will pay.
+
+## First user run and bridge fix — 2026-10-13
+
+The user installed the development plugin and reached `Exporting selected frames…`, followed by the 60-second frame-response timeout. The preceding REST read therefore completed in that run. Successful native screenshot export and PDF creation are still unconfirmed.
+
+The UI assumed `event.source === parent`, which the official Figma bridge contract does not promise. This could discard native progress/error/snapshot messages; it is a candidate explanation, not a proven diagnosis of the user's exact event. Removed that assumption and bound replies to a random per-session nonce plus sequence ID and a pending request instead. No credentials are transmitted over the UI bridge.
+
+Added an immediate native acknowledgment, per-frame render progress, a 15-second no-ack timeout and a 60-second per-stage timeout with the last stage in the error. This distinguishes a broken communication channel from an expensive native render.
+
+Image byte arrays are recreated in the UI realm before passing to pdf-lib. The bridge regression also caught a cross-realm Uint8Array prototype mismatch; normalization fixes it without changing the image bytes.
+
+Regression: actual Chromium UI received mock bridged messages with `source:null`; success, progress, PDF download, cancellation and stale-request handling passed. Eight browser scenarios, zero page JavaScript errors. TypeScript and all 10 unit/PDF tests passed again. The actual Figma rerun remains required.
