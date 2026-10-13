@@ -57,7 +57,7 @@ $('build').onclick=async()=>{
     const result=await createReport(input);
     if(signal.aborted)throw new DOMException('Cancelled','AbortError');
     pdf=result.bytes;
-    diagnostics=JSON.stringify({schema:'review-pack-diagnostic-v1',...input,frames:input.frames.map(({png,...f})=>f),threads:result.threads,unsupportedGlyphs:result.unsupportedGlyphs,limitations:['Comment attachments excluded','URL/open-document identity confirmed manually','Sequential current snapshot; no historical guarantee','No live Figma verification by developer yet']},null,2);
+    diagnostics=JSON.stringify({schema:'review-pack-diagnostic-v1',...input,frames:input.frames.map(({png,...f})=>f),threads:result.threads,layout:result.layout,unsupportedGlyphs:result.unsupportedGlyphs,limitations:['Comment attachments excluded','URL/open-document identity confirmed manually','Sequential current snapshot; no historical guarantee','Live coverage is limited; regions and resolved threads still require checks']},null,2);
     ($('pdf') as HTMLButtonElement).disabled=false;($('json') as HTMLButtonElement).disabled=false;
     status(`Ready: ${data.comments.length} messages, ${result.threads.length} threads, ${result.pages} PDF pages.\nAssigned: ${result.threads.filter(t=>t.frameId).length}; unassigned: ${result.threads.filter(t=>!t.frameId).length}.\nUnsupported glyphs: ${result.unsupportedGlyphs.length}. Review the PDF and diagnostics before sharing.`);
   }catch(e){status((e as Error).name==='AbortError'?'Cancelled. No new report is available.':(e as Error).message);}

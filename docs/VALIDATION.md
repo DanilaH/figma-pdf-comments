@@ -29,6 +29,20 @@
 
 Incorrect mapping, silent message loss or an unverified wrong-file association blocks release. A comparable configured free/manual result blocks product development. Even a technically correct prototype is not evidence that buyers will pay.
 
+## User-run result, CopyDoc comparison and compact layout — 2026-10-13
+
+The user returned a real Figma-generated PDF and diagnostics: four selected frames, four root threads and five total messages. All five texts were present. Two threads matched selected frame IDs and local coordinates; the two other root anchors were outside the selection and retained unassigned. The original output had sixteen pages. No resolved thread or region was included, so live coverage of those cases remains open. The developer inspected outputs and did not operate the user's Figma account.
+
+The user's real CopyDoc ZIP retained the same five messages, authors, timestamps and statuses, plus source comment links and three numbered frame PNGs. It exported only frames with comments; two comment-free frames selected in our run were absent, while its UI-kit frame was absent from our selection. These differences are scope differences, not lost comments or automatic superiority. The Pro-use counter does not prove the comments feature is paid.
+
+For the new layout, the four original rasters were reconstructed from image objects embedded in the user's PDF, including the cards transparency mask. Original geometry, messages, IDs and snapshot timestamp were unchanged. This is offline regeneration from actual exported data, not a new live Figma run.
+
+Result: 9 pages instead of 16, five messages each exactly once, no standalone empty discussion pages. Both 852-pixel ordinary screens fit one page; the 3197-pixel screen retains readable width and spans four parts. Short threads appear on the same page as their pins. Duplicate screen names are prefixed by their selection index; contents links target the corresponding start page.
+
+On the common two-screen selection, retaining all five messages and keeping excluded anchors in an unassigned section, our regenerated report and an automated CopyDoc PNG/JSON assembly each had seven pages. This is not evidence of equal human time: human timing was not performed, and the CopyDoc report was assembled programmatically.
+
+Strict TypeScript, all 11 unit/PDF tests and eight Chromium mock scenarios passed. Rendered PDFs were visually reviewed, including long-comment continuation. The `file`/`confirmed` extraction regression is also checked after disabling optional ligatures. No new billing, API scope, history feature or parser support was added.
+
 ## First user run and bridge fix — 2026-10-13
 
 The user installed the development plugin and reached `Exporting selected frames…`, followed by the 60-second frame-response timeout. The preceding REST read therefore completed in that run. Successful native screenshot export and PDF creation are still unconfirmed.

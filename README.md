@@ -2,14 +2,14 @@
 
 Builds a local PDF from selected Figma Design screens and the current text comment threads. This is a bounded experiment, not a commercial release. File Packs for Forminator remains the primary project; Lava is not integrated here.
 
-**Status: source, built UI, unit tests, PDF rendering and a browser mock test are verified locally. Installation and execution inside real Figma, actual coordinate responses, permissions/CORS and comparison with CopyDoc are NOT verified.** The mock host is explicitly labelled and cannot prove Figma integration.
+**Status: one user-run export in real Figma returned four screens and all five source messages. Returned PDF/JSON were independently checked. The updated compact layout is verified offline using those exact comment/geometry records and the images embedded in the returned PDF; it has not yet been rerun inside Figma.** Broader live coverage, wrong-file protection, regions/resolved threads and measured human-time advantage remain unverified. The browser mock is explicitly labelled and is not a Figma integration test.
 
 ## What it does
 
 - Reads comments using the official REST endpoint and a `file_comments:read` PAT.
 - Exports 1–12 selected top-level frames using the Plugin API.
 - Builds one PDF with a contents list, current screen images, report-numbered pins/regions, authors, original timestamps, replies, resolved/open status and file/screen links.
-- Splits long screen images and discussions across pages rather than truncating them.
+- Fits ordinary screens onto one page within a bounded readability reduction; long screens retain a readable width and split across pages. Short threads are placed beside the relevant image part; long threads continue at full page width.
 - Preserves outside, deleted/excluded-anchor, ambiguous and orphan messages in an unassigned section with a reason.
 - Lets the user download local diagnostics JSON with original text and coordinate evidence, but never the token.
 
@@ -61,9 +61,9 @@ Do not send your token in chat, attach it to issues, commit it, or put it in dia
 
 ## Tests and evidence
 
-`npm run verify`: TypeScript, 10 unit/PDF tests, build. Tests cover URL/token destination validation, all four region corners, ambiguous/outside/missing anchors, replies/orphans/cycles, malformed or duplicate API data, 403/404/429/500, long-screen splitting, long comments, Unicode fallback and raster mismatch.
+`npm run verify`: TypeScript, 11 unit/PDF tests, build. Tests cover URL/token destination validation, all four region corners, ambiguous/outside/missing anchors, replies/orphans/cycles, malformed or duplicate API data, 403/404/429/500, long-screen splitting, long comments, Unicode fallback, raster mismatch, duplicate screen names and inline short discussions without blank discussion pages.
 
-PDF fixture is synthetic and labelled `SYNTHETIC DIAGNOSTIC — not live Figma`. Local output: 8 pages; all four source messages preserved, one unassigned thread, one explicit emoji fallback, 5 file/screen/contents links. All pages were rendered and visually reviewed. PDF text extraction alone missed a font-rendering defect, which was fixed by embedding the already-subsetted TTF without a second fontkit subset.
+PDF fixtures are synthetic and labelled accordingly. The earlier layout made eight pages for the long fixture; page count now depends on compact inline layout. Source messages, unassigned threads and explicit emoji fallback remain preserved. PDFs were rendered and visually reviewed. PDF text extraction alone missed a font-rendering defect, fixed by embedding the already-subsetted TTF without a second fontkit subset. Optional fi/fl ligatures are also disabled after incorrect text mappings were found in the real returned report.
 
 Optional browser test:
 
@@ -83,4 +83,8 @@ After the first user run timed out awaiting a frame response, bridge handling wa
 
 On 2026-10-13 the user provided an actual HTML export from Comments & Version History Exporter: four root comments and one reply, with authors/dates. That HTML had no screen images, coordinates, pin IDs or source-position links. Its unchanged HTML print produced a readable single-page text document. This proves a gap in that sample, not in every competitor or setting. No private source exports, screenshots, file keys or comment bodies are committed here.
 
-Next: run this build on the same real file, verify mapping and completeness, then compare with CopyDoc and a configured manual document workflow. Time first-run setup separately from repeat exports. Check resolved comments, replies, regions, outside comments, a moved frame and attachments. If the free/manual process is comparable, or the report without attachments is not useful, stop. Do not add features to rescue the idea. There is no sales or willingness-to-pay evidence yet.
+The user also supplied a real CopyDoc ZIP. It preserved the same five messages/authors/timestamps/statuses, source links and numbered PNGs. An automated offline assembly made a readable PDF without any extra extraction. This demonstrates that our remaining advantage is direct in-Figma document assembly, not unique data access or pin association. The screenshot's ten Pro uses do not establish whether comment export itself consumes trials.
+
+On the exact four-frame/five-message input, offline regeneration with the new layout reduced the original 16-page report to 9 pages, with all messages once and two short threads beside their relevant screens. Restricting both methods to the same two common screen images while preserving all five messages resulted in seven pages for each configured output. Page count does not establish user-time savings; the CopyDoc assembly was automated, not a measured manual session. No private exports/screenshots/comment texts or file keys are committed.
+
+Next: rerun the compact build in Figma, then check resolved comments, regions, outside comments, a moved frame and attachments. Time first-run setup separately from repeat exports. If the configured free/manual process is comparable, or the report without attachments is not useful, stop. Do not add features to rescue the idea. There is no sales or willingness-to-pay evidence yet.
