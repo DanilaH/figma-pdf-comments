@@ -1,0 +1,10 @@
+import {build} from 'esbuild';
+import {readFile,writeFile,mkdir} from 'node:fs/promises';
+await mkdir('dist',{recursive:true});
+await build({entryPoints:['src/code.ts'],bundle:true,target:'es2017',outfile:'dist/code.js'});
+const ui=await build({entryPoints:['src/ui.ts'],bundle:true,write:false,target:'es2020',minify:true});
+const source=await readFile('src/ui.html','utf8');
+await writeFile('dist/ui.html',source.replace('/* UI_BUNDLE */',()=>ui.outputFiles[0].text.replace(/<\/script/gi,'<\\/script')));
+const notices=await Promise.all(['THIRD_PARTY_NOTICES.md','node_modules/pdf-lib/LICENSE.md','vendor-fontkit-LICENSE.txt'].map(p=>readFile(p,'utf8')));
+await writeFile('dist/THIRD_PARTY_NOTICES.txt',notices.join('\n\n'));
+console.log('Built local diagnostic plugin. No publishing or network upload.');

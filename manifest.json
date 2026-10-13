@@ -1,0 +1,1 @@
+{"name":"Review Pack Diagnostic","api":"1.0.0","main":"dist/code.js","ui":"dist/ui.html","editorType":["figma"],"documentAccess":"dynamic-page","networkAccess":{"allowedDomains":["https://api.figma.com"],"reasoning":"Read current comments from the supplied Figma file URL. No third-party processing."}}
